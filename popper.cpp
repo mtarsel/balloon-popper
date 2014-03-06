@@ -2,7 +2,6 @@
 #include <cstdlib>
 using namespace std;
 
-void rotate(GLuint locate);
 
 GLuint vaoID,vboID[2],eboID;
 GLuint program;
@@ -82,9 +81,6 @@ void display(SDL_Window* screen){
     glm::mat4 trans;
 	
     trans=glm::translate(trans,cubeTran);//translate the cube
-    trans=glm::rotate(trans,pit,glm::vec3(1,0,0));//rotate the cube around the x axis
-    trans=glm::rotate(trans,yaw,glm::vec3(0,1,0));//rotate the cube arround the y axis
-    trans=glm::scale(trans,glm::vec3(scalar));//scaling the cube
     
     GLint tempLoc = glGetUniformLocation(program,"modelMatrix");//Matrix that handle the transformations
     glUniformMatrix4fv(tempLoc,1,GL_FALSE,&trans[0][0]);
@@ -108,12 +104,6 @@ void input(SDL_Window* screen){
 		    case SDLK_s:cubeTran.y-=2;break;
 		    case SDLK_a:cubeTran.x-=2;break;
 		    case SDLK_d:cubeTran.x+=2;break;
-		    case SDLK_e:scalar+=.1f;break;
-		    case SDLK_q:scalar-=.1f;break;
-		    case SDLK_i:pit+=2;break;
-		    case SDLK_k:pit-=2;break;
-		    case SDLK_j:yaw+=2;break;
-		    case SDLK_l:yaw-=2;break;
 		}
 	}
     }
@@ -133,7 +123,7 @@ int main(int argc, char **argv){
 
 	//create window
     window = SDL_CreateWindow(
-	"Hollow Tetrahydron", //Window title
+	"Balloon Popper", //Window title
 	SDL_WINDOWPOS_UNDEFINED, //initial x position
 	SDL_WINDOWPOS_UNDEFINED, //initial y position
 	500,							//width, in pixels
