@@ -80,7 +80,7 @@ void display(SDL_Window* screen){
 	
     glm::mat4 trans;
 	
-    trans=glm::translate(trans,cubeTran);//translate the cube
+    trans=glm::translate(trans,cubeTran);//translate the balloon
     
     GLint tempLoc = glGetUniformLocation(program,"modelMatrix");//Matrix that handle the transformations
     glUniformMatrix4fv(tempLoc,1,GL_FALSE,&trans[0][0]);
