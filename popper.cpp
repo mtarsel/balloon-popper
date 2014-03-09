@@ -107,11 +107,10 @@ void input(SDL_Window* screen){
 
 	if(pressed){
 		if(cubeTran.y <= -27) cubeTran.y = -27;
-		else if(lastkey.key.keysym.sym == SDLK_DOWN) cubeTran.y -= 0.4;
-		if(cubeTran.y >= 3.4) cubeTran.y = 3.4;
-		else if(lastkey.key.keysym.sym == SDLK_UP) cubeTran.y += 0.4;	
+		else if(lastkey.key.keysym.sym == SDLK_DOWN) cubeTran.y -= 0.5;
+		if(cubeTran.y >= 3.5) cubeTran.y = 3.5;
+		else if(lastkey.key.keysym.sym == SDLK_UP) cubeTran.y += 0.5;	
 	}
-	printf("y: %f\n", cubeTran.y);
     while ( SDL_PollEvent(&event) )
     {
         switch (event.type)
