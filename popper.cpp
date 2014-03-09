@@ -1,4 +1,5 @@
 #include "shaders.h"
+#include <unistd.h>
 #include <cstdlib>
 using namespace std;
 
@@ -11,28 +12,38 @@ glm::vec3 cubeTran;
 
 GLfloat size=20;
 
-GLfloat vertexarray[]={0.0f,15.0f,-15.0f,
+//Variables for input function
+bool pressed = false;
+SDL_Event event;
+SDL_Event lastkey;
+
+/*GLfloat vertexarray[]={0.0f,15.0f,-15.0f,
 			10.0f,-10.0f,-20.0f,
 			-10.0f,-10.0f,-20.0f,
 			0.0f,15.0f,-15.0f,
 			10.0f,-10.0f,-20.0f,
 			0.0f,15.0f,-15.0f,
 			-10.0f,-10.0f,-20.0f};
+*/
+GLfloat vertexarray[]={0.0f,0.0f,0.0f,
+					   0.0f,3.0f,0.0f,
+					   3.0f,1.5f,0.0f};
 
-
-GLfloat colorarray[]={
+/*GLfloat colorarray[]={
 //3.0f,3.0f,3.0f,3.0f,
 
-			    0.5f,1.0f,1.0f,1.0f,
+					0.5f,1.0f,1.0f,1.0f,
 				    1.0f,0.5f,1.0f,1.0f,
 				    1.0f,1.0f,0.5f,1.0f,
 				    1.0f,1.0f,1.0f,1.0f,
 				    0.5f,1.0f,1.0f,1.0f,
 				    1.0f,0.5f,1.0f,1.0f,
-                      1.0f,1.0f,0.5f,1.0f
-
-
-
+                     1.0f,1.0f,0.5f,1.0f
+};*/
+GLfloat colorarray[]={
+					1.0f,0.0f,0.0f,1.0f,
+					1.0f,0.0f,0.0f,1.0f,
+					1.0f,0.0f,0.0f,1.0f
 };
 
 											
@@ -43,7 +54,7 @@ GLubyte elems[]={0,1,2,3,7,4,5,6,
 
 void init(){
     glEnable(GL_DEPTH_TEST);
-    glViewport(0, 0, 600, 600);
+    glViewport(0, 0, 800, 800);
 	
     glGenVertexArrays(1,&vaoID);
     glBindVertexArray(vaoID);
@@ -71,7 +82,9 @@ void init(){
   
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
-  
+	
+	//initial reposition
+	cubeTran.x = -22.0; cubeTran.y = -12.0;
 }
 
 
@@ -81,7 +94,7 @@ void display(SDL_Window* screen){
     glm::mat4 trans;
 	
     trans=glm::translate(trans,cubeTran);//translate the balloon
-    
+    //printf("pressed: %i\n", pressed);
     GLint tempLoc = glGetUniformLocation(program,"modelMatrix");//Matrix that handle the transformations
     glUniformMatrix4fv(tempLoc,1,GL_FALSE,&trans[0][0]);
 	
@@ -92,22 +105,34 @@ void display(SDL_Window* screen){
 
 void input(SDL_Window* screen){
 
-    SDL_Event event;
-
-    while (SDL_PollEvent(&event)){//Handling the keyboard
-	switch (event.type){
-	    case SDL_QUIT:exit(0);break;
-	    case SDL_KEYDOWN:
-		switch(event.key.keysym.sym){
-		    case SDLK_ESCAPE:exit(0);
-		    case SDLK_w:cubeTran.y+=2;break;
-		    case SDLK_s:cubeTran.y-=2;break;
-		    case SDLK_a:cubeTran.x-=2;break;
-		    case SDLK_d:cubeTran.x+=2;break;
-		}
+	if(pressed){
+		if(cubeTran.y <= -27) cubeTran.y = -27;
+		else if(lastkey.key.keysym.sym == SDLK_DOWN) cubeTran.y -= 0.4;
+		if(cubeTran.y >= 3.4) cubeTran.y = 3.4;
+		else if(lastkey.key.keysym.sym == SDLK_UP) cubeTran.y += 0.4;	
 	}
+	printf("y: %f\n", cubeTran.y);
+    while ( SDL_PollEvent(&event) )
+    {
+        switch (event.type)
+        {
+            case SDL_QUIT:
+				exit(0);
+                break;
+            case SDL_KEYDOWN:
+				if(event.key.keysym.sym == SDLK_ESCAPE) exit(0);
+                pressed = true;
+                break;
+            case SDL_KEYUP:
+                pressed = false;
+                break;
+            default:
+                break;
+        }
     }
-}
+	lastkey = event;
+    }
+
 
 
 int main(int argc, char **argv){
@@ -126,7 +151,7 @@ int main(int argc, char **argv){
 	"Balloon Popper", //Window title
 	SDL_WINDOWPOS_UNDEFINED, //initial x position
 	SDL_WINDOWPOS_UNDEFINED, //initial y position
-	500,							//width, in pixels
+	800,							//width, in pixels
 	500,							//height, in pixels
 	SDL_WINDOW_OPENGL	//flags to be had
     );
