@@ -28,6 +28,10 @@ bool pressed = false;
 SDL_Event event;
 SDL_Event lastkey;
 
+GLfloat randglfloat(float min, float max){
+	return min+static_cast <GLfloat> (rand())/(static_cast <GLfloat> (RAND_MAX/(max-min)));
+}
+
 class drawobj {
 public:
   GLuint vaoID,vboID[2],eboID;//buffer objects
@@ -76,7 +80,8 @@ public:
 		if(objTran.x <= -30.5-vertexarray[3]){ //vertexarray[3] is added to compensate for scale
 			objTran.x = 28.0+vertexarray[3];
 		
-			objTran.y = -27.0 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(3.5-(-27.0))));
+			//objTran.y = -27.0 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(3.5-(-27.0))));
+			objTran.y = randglfloat(-27.0, 3.5);
 		}
 		else objTran.x -= speed;
 	}
@@ -108,6 +113,9 @@ void create_object(int vertsize, int colorsize, int elemssize, GLfloat tempvert[
 	targetobject.elemssize = elemssize;
 	memcpy(targetobject.elems, tempelems, elemssize);
 	
+	targetobject.objTran.x = 28.0+targetobject.vertexarray[3]; //create the object on the right
+	targetobject.objTran.y = randglfloat(-27.0, 3.5); //at a random y value
+	
 	//initial buffer creation
 	glGenBuffers(2, targetobject.vboID);
 	glGenBuffers(1,&targetobject.eboID);
@@ -125,6 +133,8 @@ void init_arrow(){
 	GLubyte tempelems[]={0,1,2};
 	
 	create_object(sizeof(tempvert), sizeof(tempcolor), sizeof(tempelems), tempvert, tempcolor, tempelems, arrow, 0);
+	//initial reposition of arrow, overriding the default create_object position.
+	arrow.objTran.x = -22.0; arrow.objTran.y = -12.0;
 }
 
 
@@ -134,9 +144,6 @@ void init(){
 	program=initShaders(shaders);
 	
 	init_arrow();
-	
-	//initial reposition of arrow
-	arrow.objTran.x = -22.0; arrow.objTran.y = -12.0;
 }
 
 
@@ -144,7 +151,6 @@ void init(){
 void display(SDL_Window* screen){
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	
-	//Dominic changes to display
 	arrow.setbuffers();
 	arrow.draw();
 	int i;
@@ -152,14 +158,9 @@ void display(SDL_Window* screen){
 		objectarray.array[i].setbuffers();
 		objectarray.array[i].draw();
 	}
-	//end Dom changes
 	
     glFlush();
     SDL_GL_SwapWindow(screen);
-}
-
-GLfloat randglfloat(float min, float max){
-	return min+static_cast <GLfloat> (rand())/(static_cast <GLfloat> (RAND_MAX/(max-min)));
 }
 
 void input(SDL_Window* screen){
@@ -208,10 +209,6 @@ void input(SDL_Window* screen){
 						//if(i%4 == 0) tempcolor[i]=1.0f;
 						tempcolor[i]=tempcolor[i+4]=tempcolor[i+8]=tempcolor[i+12]=randglfloat(0.0, 1.0);
 					}
-//					GLfloat tempcolor[]={0.0f,1.0f,0.0f,1.0f,
-//							0.0f,1.0f,0.0f,1.0f,
-//							0.0f,1.0f,0.0f,1.0f,
-//							0.0f,1.0f,0.0f,1.0f};
 					   
 					GLubyte tempelems[]={0,1,2,3};
 	
@@ -232,6 +229,30 @@ void input(SDL_Window* screen){
 	lastkey = event;
     }
 
+void newshape(){
+	if(objectarray.size == 500)
+		printf("Buffer full\n");
+	printf("%i\n", objectarray.size);
+	GLfloat scale = randglfloat(0.5, 6.0);
+	GLfloat tempvert[] = {0.0f,0.0f,
+				    0.0f,scale,
+				    scale,scale,
+				    scale,0.0f};
+					
+	int i;
+	GLfloat tempcolor[16];
+	for(i=0;i<4;i++){
+		//if(i%4 == 0) tempcolor[i]=1.0f;
+		tempcolor[i]=tempcolor[i+4]=tempcolor[i+8]=tempcolor[i+12]=randglfloat(0.0, 1.0);
+	}
+					   
+	GLubyte tempelems[]={0,1,2,3};
+	
+	create_object(sizeof(tempvert), sizeof(tempcolor), sizeof(tempelems), tempvert, tempcolor, tempelems, objectarray.array[objectarray.size], 1);
+	objectarray.array[objectarray.size].speed = 1.0/scale;
+	printf("%f\n", 1.0/scale);
+	objectarray.size++;
+}
 
 
 int main(int argc, char **argv){
@@ -280,8 +301,23 @@ int main(int argc, char **argv){
   }
   
     init();
-
+    int prevsecond=0;
     while(true){
+    	//shape creation
+    	if(objectarray.size<500){ //make sure it won't overflow the buffer
+    	if((int)difftime(time(NULL), timer)!=prevsecond){ //check to make sure it's the next second
+    		if(objectarray.size<6){ //for the first 6 shapes
+    			if((int)difftime(time(NULL), timer)%1==0) //make a new one every 5 seconds
+    				newshape();
+    		}
+    		else{
+    			if((int)difftime(time(NULL), timer)%15==0) //else, make one every 15
+    				newshape();
+    		}
+    	}
+    }
+    prevsecond = (int)difftime(time(NULL), timer); //set the second to compare next iteration
+    
 	input(window);//keyboard controls
 	display(window);//displaying
     }
