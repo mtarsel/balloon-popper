@@ -1,6 +1,7 @@
 #include "shaders.h"
 #include <unistd.h>
 #include <cstdlib>
+#include <ctime>
 using namespace std;
 
 
@@ -36,6 +37,8 @@ public:
   int elemssize;
   //for translations
   glm::vec3 objTran;
+  //is this a moving object?
+  int move;
   //for setting the draw buffer to this object
   void setbuffers() {
 	glGenVertexArrays(1,&vaoID);
@@ -44,7 +47,7 @@ public:
     glGenBuffers(2, vboID);
     glBindBuffer(GL_ARRAY_BUFFER,vboID[0]);
     glBufferData(GL_ARRAY_BUFFER,vertexsize,vertexarray,GL_STATIC_DRAW);
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,(void*)0);
+    glVertexAttribPointer(0,2,GL_FLOAT,GL_FALSE,0,(void*)0);
 	
     glBindBuffer(GL_ARRAY_BUFFER, vboID[1]);
     glBufferData(GL_ARRAY_BUFFER,colorsize,colorarray,GL_STATIC_DRAW);
@@ -65,16 +68,24 @@ public:
     glUniformMatrix4fv(tempLoc,1,GL_FALSE,&trans[0][0]);
   }
   void draw(){
+	if(move == 1){
+		if(objTran.x <= -30.5){ 
+			objTran.x = 28.0;
+		
+			objTran.y = -27.0 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(3.5-(-27.0))));
+		}
+		else objTran.x -= 0.2;
+	}
 	glDrawElements(GL_POLYGON,elemssize,GL_UNSIGNED_BYTE,NULL);
   }
 } ;
 
 drawobj arrow;
-drawobj newobject;
+drawobj objectarray[100];
 
 //because sizes of arrays aren't passed with the data in c++ -.- but I'd rather have a working function than a pretty function
-void create_object(int vertsize, int colorsize, int elemssize, GLfloat tempvert[], GLfloat tempcolor[], GLubyte tempelems[], drawobj &targetobject){
-
+void create_object(int vertsize, int colorsize, int elemssize, GLfloat tempvert[], GLfloat tempcolor[], GLubyte tempelems[], drawobj &targetobject, int move){
+	targetobject.move = move;
 	targetobject.vertexarray = (GLfloat*)malloc(sizeof(GLfloat)*vertsize);
 	targetobject.vertexsize = vertsize;
 	memcpy(targetobject.vertexarray, tempvert, 4*vertsize);
@@ -89,9 +100,9 @@ void create_object(int vertsize, int colorsize, int elemssize, GLfloat tempvert[
 }
 
 void init_arrow(){
-	GLfloat tempvert[] = {0.0f,0.0f,0.0f,
-						 0.0f,3.0f,0.0f,
-						 3.0f,1.5f,0.0f};
+	GLfloat tempvert[] = {0.0f,0.0f,
+						 0.0f,3.0f,
+						 3.0f,1.5f};
 						 
 	GLfloat tempcolor[]={1.0f,0.0f,0.0f,1.0f,
 					   1.0f,0.0f,0.0f,1.0f,
@@ -99,7 +110,7 @@ void init_arrow(){
 					   
 	GLubyte tempelems[]={0,1,2};
 	
-	create_object(sizeof(tempvert), sizeof(tempcolor), sizeof(tempelems), tempvert, tempcolor, tempelems, arrow);
+	create_object(sizeof(tempvert), sizeof(tempcolor), sizeof(tempelems), tempvert, tempcolor, tempelems, arrow, 0);
 }
 
 
@@ -110,10 +121,10 @@ void init(){
 	
 	init_arrow();
 	
-	GLfloat tempvert[] = {0.0f,0.0f,0.0f,
-						 0.0f,3.0f,0.0f,
-						 3.0f,3.0f,0.0f,
-						 3.0f,0.0f,0.0f};
+	GLfloat tempvert[] = {0.0f,0.0f,
+						 0.0f,3.0f,
+						 3.0f,3.0f,
+						 3.0f,0.0f};
 						 
 	GLfloat tempcolor[]={0.0f,1.0f,0.0f,1.0f,
 					   0.0f,1.0f,0.0f,1.0f,
@@ -122,7 +133,7 @@ void init(){
 					   
 	GLubyte tempelems[]={0,1,2,3};
 	
-	create_object(sizeof(tempvert), sizeof(tempcolor), sizeof(tempelems), tempvert, tempcolor, tempelems, newobject);
+	create_object(sizeof(tempvert), sizeof(tempcolor), sizeof(tempelems), tempvert, tempcolor, tempelems, objectarray[0], 1);
 
 	//initial reposition of arrow
 	arrow.objTran.x = -22.0; arrow.objTran.y = -12.0;
@@ -136,8 +147,8 @@ void display(SDL_Window* screen){
 	//Dominic changes to display
 	arrow.setbuffers();
 	arrow.draw();
-	newobject.setbuffers();
-	newobject.draw();
+	objectarray[0].setbuffers();
+	objectarray[0].draw();
 	//end Dom changes
 	
     glFlush();
@@ -150,7 +161,7 @@ void input(SDL_Window* screen){
 		if(arrow.objTran.y <= -27) arrow.objTran.y = -27;
 		else if(lastkey.key.keysym.sym == SDLK_DOWN) arrow.objTran.y -= 0.5;
 		if(arrow.objTran.y >= 3.5) arrow.objTran.y = 3.5;
-		else if(lastkey.key.keysym.sym == SDLK_UP) arrow.objTran.y += 0.5;	
+		else if(lastkey.key.keysym.sym == SDLK_UP) arrow.objTran.y += 0.5;
 	}
     while ( SDL_PollEvent(&event) )
     {
@@ -176,6 +187,9 @@ void input(SDL_Window* screen){
 
 
 int main(int argc, char **argv){
+	
+	//For random movement of objects
+	srand(time(NULL));
 	
 	//SDL window and context management
     SDL_Window *window;
