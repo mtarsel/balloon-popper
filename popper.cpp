@@ -5,11 +5,9 @@
 using namespace std;
 
 
-//GLuint vaoID,vboID[2],eboID;
 GLuint program;
 
 GLfloat pit,yaw,scalar=1;
-//glm::vec3 arrowTran;
 
 GLfloat size=20;
 
@@ -71,7 +69,7 @@ public:
 	//this section handles the translation of the object
     glm::mat4 trans; //I know this seems wasteful but for some reason this needs to be declared here every time.
 	trans=glm::translate(trans,objTran);//translate the object
-    //printf("pressed: %i\n", pressed);
+
     GLint tempLoc = glGetUniformLocation(program,"modelMatrix");//Matrix that handle the transformations
     glUniformMatrix4fv(tempLoc,1,GL_FALSE,&trans[0][0]);
   }
@@ -80,7 +78,6 @@ public:
 		if(objTran.x <= -30.5-vertexarray[3]){ //vertexarray[3] is added to compensate for scale
 			objTran.x = 28.0+vertexarray[3];
 		
-			//objTran.y = -27.0 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(3.5-(-27.0))));
 			objTran.y = randglfloat(-27.0, 3.5);
 		}
 		else objTran.x -= speed;
@@ -164,7 +161,6 @@ void display(SDL_Window* screen){
 }
 
 void input(SDL_Window* screen){
-	//printf("%f, %f\n", arrow.objTran.x, arrow.objTran.y);
 	if(pressed){
 		if(arrow.objTran.y <= -27) arrow.objTran.y = -27;
 		else if(lastkey.key.keysym.sym == SDLK_DOWN) arrow.objTran.y -= 0.5;
@@ -179,16 +175,12 @@ void input(SDL_Window* screen){
         {
             case SDL_QUIT:
 				seconds = difftime(time(NULL), timer);
-				/*0printf("time: %.0f\n",seconds);
-				printf("Blocks: %i\n",objectarray.size);*/
 				printf("score: %.0f\n", seconds);
 				exit(0);
 		                break;
             case SDL_KEYDOWN:
 				if(event.key.keysym.sym == SDLK_ESCAPE){
 					seconds = difftime(time(NULL), timer);
-					/*printf("time: %.0f\n",seconds);
-					printf("Blocks: %i\n",objectarray.size);*/
 					printf("score: %.0f\n", seconds);
 					exit(0);
 				}
@@ -206,7 +198,6 @@ void input(SDL_Window* screen){
 					int i;
 					GLfloat tempcolor[16];
 					for(i=0;i<4;i++){
-						//if(i%4 == 0) tempcolor[i]=1.0f;
 						tempcolor[i]=tempcolor[i+4]=tempcolor[i+8]=tempcolor[i+12]=randglfloat(0.0, 1.0);
 					}
 					   
@@ -242,7 +233,6 @@ void newshape(){
 	int i;
 	GLfloat tempcolor[16];
 	for(i=0;i<4;i++){
-		//if(i%4 == 0) tempcolor[i]=1.0f;
 		tempcolor[i]=tempcolor[i+4]=tempcolor[i+8]=tempcolor[i+12]=randglfloat(0.0, 1.0);
 	}
 					   
