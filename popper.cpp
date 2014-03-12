@@ -39,12 +39,13 @@ public:
   glm::vec3 objTran;
   //is this a moving object?
   int move;
+  //what is the speed
+  float speed;
   //for setting the draw buffer to this object
   void setbuffers() {
 	glGenVertexArrays(1,&vaoID);
     glBindVertexArray(vaoID);
 	
-    //glGenBuffers(2, vboID);
     glBindBuffer(GL_ARRAY_BUFFER,vboID[0]);
     glBufferData(GL_ARRAY_BUFFER,vertexsize,vertexarray,GL_STATIC_DRAW);
     glVertexAttribPointer(0,2,GL_FLOAT,GL_FALSE,0,(void*)0);
@@ -53,7 +54,6 @@ public:
     glBufferData(GL_ARRAY_BUFFER,colorsize,colorarray,GL_STATIC_DRAW);
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
   
-    //glGenBuffers(1,&eboID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,eboID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,elemssize,elems,GL_STATIC_DRAW);
   
@@ -69,12 +69,12 @@ public:
   }
   void draw(){
 	if(move == 1){
-		if(objTran.x <= -30.5){ 
-			objTran.x = 28.0;
+		if(objTran.x <= -30.5-vertexarray[3]){ //vertexarray[3] is added to compensate for scale
+			objTran.x = 28.0+vertexarray[3];
 		
 			objTran.y = -27.0 + static_cast <float> (rand()) /( static_cast <float> (RAND_MAX/(3.5-(-27.0))));
 		}
-		else objTran.x -= 0.2;
+		else objTran.x -= speed;
 	}
 	glDrawElements(GL_POLYGON,elemssize,GL_UNSIGNED_BYTE,NULL);
   }
@@ -131,21 +131,6 @@ void init(){
 	
 	init_arrow();
 	
-	/*GLfloat tempvert[] = {0.0f,0.0f,
-						 0.0f,3.0f,
-						 3.0f,3.0f,
-						 3.0f,0.0f};
-						 
-	GLfloat tempcolor[]={0.0f,1.0f,0.0f,1.0f,
-					   0.0f,1.0f,0.0f,1.0f,
-					   0.0f,1.0f,0.0f,1.0f,
-					   0.0f,1.0f,0.0f,1.0f};
-					   
-	GLubyte tempelems[]={0,1,2,3};
-	
-	create_object(sizeof(tempvert), sizeof(tempcolor), sizeof(tempelems), tempvert, tempcolor, tempelems, objectarray.array[objectarray.size], 1);
-	objectarray.size++;*/
-
 	//initial reposition of arrow
 	arrow.objTran.x = -22.0; arrow.objTran.y = -12.0;
 }
@@ -167,6 +152,10 @@ void display(SDL_Window* screen){
 	
     glFlush();
     SDL_GL_SwapWindow(screen);
+}
+
+GLfloat randglfloat(float min, float max){
+	return min+static_cast <GLfloat> (rand())/(static_cast <GLfloat> (RAND_MAX/(max-min)));
 }
 
 void input(SDL_Window* screen){
@@ -191,19 +180,30 @@ void input(SDL_Window* screen){
 				if(event.key.keysym.sym == SDLK_SPACE){
 					if(objectarray.size == 500){ printf("Buffer full\n"); break;}
 					printf("%i\n", objectarray.size);
+					
+					
+					GLfloat scale = randglfloat(0.5, 6.0);
 					GLfloat tempvert[] = {0.0f,0.0f,
-							0.0f,3.0f,
-							3.0f,3.0f,
-							3.0f,0.0f};
-						 
-					GLfloat tempcolor[]={0.0f,1.0f,0.0f,1.0f,
-							0.0f,1.0f,0.0f,1.0f,
-							0.0f,1.0f,0.0f,1.0f,
-							0.0f,1.0f,0.0f,1.0f};
+							0.0f,scale,
+							scale,scale,
+							scale,0.0f};
+					
+					int i;
+					GLfloat tempcolor[16];
+					for(i=0;i<4;i++){
+						//if(i%4 == 0) tempcolor[i]=1.0f;
+						tempcolor[i]=tempcolor[i+4]=tempcolor[i+8]=tempcolor[i+12]=randglfloat(0.0, 1.0);
+					}
+//					GLfloat tempcolor[]={0.0f,1.0f,0.0f,1.0f,
+//							0.0f,1.0f,0.0f,1.0f,
+//							0.0f,1.0f,0.0f,1.0f,
+//							0.0f,1.0f,0.0f,1.0f};
 					   
 					GLubyte tempelems[]={0,1,2,3};
 	
 					create_object(sizeof(tempvert), sizeof(tempcolor), sizeof(tempelems), tempvert, tempcolor, tempelems, objectarray.array[objectarray.size], 1);
+					objectarray.array[objectarray.size].speed = 1.0/scale;
+					printf("%f\n", 1.0/scale);
 					objectarray.size++;
 				}
                 pressed = true;
