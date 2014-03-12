@@ -80,8 +80,14 @@ public:
   }
 } ;
 
+class drawarray{
+public:
+	int size;
+	drawobj array[100];
+	void init(){size=0;}
+} objectarray;
+
 drawobj arrow;
-drawobj objectarray[100];
 
 //because sizes of arrays aren't passed with the data in c++ -.- but I'd rather have a working function than a pretty function
 void create_object(int vertsize, int colorsize, int elemssize, GLfloat tempvert[], GLfloat tempcolor[], GLubyte tempelems[], drawobj &targetobject, int move){
@@ -121,7 +127,7 @@ void init(){
 	
 	init_arrow();
 	
-	GLfloat tempvert[] = {0.0f,0.0f,
+	/*GLfloat tempvert[] = {0.0f,0.0f,
 						 0.0f,3.0f,
 						 3.0f,3.0f,
 						 3.0f,0.0f};
@@ -133,7 +139,8 @@ void init(){
 					   
 	GLubyte tempelems[]={0,1,2,3};
 	
-	create_object(sizeof(tempvert), sizeof(tempcolor), sizeof(tempelems), tempvert, tempcolor, tempelems, objectarray[0], 1);
+	create_object(sizeof(tempvert), sizeof(tempcolor), sizeof(tempelems), tempvert, tempcolor, tempelems, objectarray.array[objectarray.size], 1);
+	objectarray.size++;*/
 
 	//initial reposition of arrow
 	arrow.objTran.x = -22.0; arrow.objTran.y = -12.0;
@@ -147,8 +154,11 @@ void display(SDL_Window* screen){
 	//Dominic changes to display
 	arrow.setbuffers();
 	arrow.draw();
-	objectarray[0].setbuffers();
-	objectarray[0].draw();
+	int i;
+	for(i=0; i<objectarray.size; i++){
+		objectarray.array[i].setbuffers();
+		objectarray.array[i].draw();
+	}
 	//end Dom changes
 	
     glFlush();
@@ -162,6 +172,8 @@ void input(SDL_Window* screen){
 		else if(lastkey.key.keysym.sym == SDLK_DOWN) arrow.objTran.y -= 0.5;
 		if(arrow.objTran.y >= 3.5) arrow.objTran.y = 3.5;
 		else if(lastkey.key.keysym.sym == SDLK_UP) arrow.objTran.y += 0.5;
+		else if(lastkey.key.keysym.sym == SDLK_RIGHT){
+		}
 	}
     while ( SDL_PollEvent(&event) )
     {
@@ -172,6 +184,24 @@ void input(SDL_Window* screen){
                 break;
             case SDL_KEYDOWN:
 				if(event.key.keysym.sym == SDLK_ESCAPE) exit(0);
+				if(event.key.keysym.sym == SDLK_SPACE){
+					if(objectarray.size == 99){ printf("Buffer full"); break;}
+					printf("%i\n", objectarray.size);
+					GLfloat tempvert[] = {0.0f,0.0f,
+							0.0f,3.0f,
+							3.0f,3.0f,
+							3.0f,0.0f};
+						 
+					GLfloat tempcolor[]={0.0f,1.0f,0.0f,1.0f,
+							0.0f,1.0f,0.0f,1.0f,
+							0.0f,1.0f,0.0f,1.0f,
+							0.0f,1.0f,0.0f,1.0f};
+					   
+					GLubyte tempelems[]={0,1,2,3};
+	
+					create_object(sizeof(tempvert), sizeof(tempcolor), sizeof(tempelems), tempvert, tempcolor, tempelems, objectarray.array[objectarray.size], 1);
+					objectarray.size++;
+				}
                 pressed = true;
                 break;
             case SDL_KEYUP:
@@ -190,6 +220,8 @@ int main(int argc, char **argv){
 	
 	//For random movement of objects
 	srand(time(NULL));
+	//create object array
+	objectarray.init();
 	
 	//SDL window and context management
     SDL_Window *window;
