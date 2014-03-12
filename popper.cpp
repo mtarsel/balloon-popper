@@ -4,112 +4,153 @@
 using namespace std;
 
 
-GLuint vaoID,vboID[2],eboID;
+//GLuint vaoID,vboID[2],eboID;
 GLuint program;
 
 GLfloat pit,yaw,scalar=1;
-glm::vec3 cubeTran;
+//glm::vec3 arrowTran;
 
 GLfloat size=20;
+
+ShaderInfo shaders[]={
+	{ GL_VERTEX_SHADER , "vertexshader.glsl"},
+	{ GL_FRAGMENT_SHADER , "fragmentshader.glsl"}, 
+	{ GL_NONE , NULL} 
+    };
 
 //Variables for input function
 bool pressed = false;
 SDL_Event event;
 SDL_Event lastkey;
 
-/*GLfloat vertexarray[]={0.0f,15.0f,-15.0f,
-			10.0f,-10.0f,-20.0f,
-			-10.0f,-10.0f,-20.0f,
-			0.0f,15.0f,-15.0f,
-			10.0f,-10.0f,-20.0f,
-			0.0f,15.0f,-15.0f,
-			-10.0f,-10.0f,-20.0f};
-*/
-GLfloat vertexarray[]={0.0f,0.0f,0.0f,
-					   0.0f,3.0f,0.0f,
-					   3.0f,1.5f,0.0f};
+class drawobj {
+public:
+  GLuint vaoID,vboID[2],eboID;//buffer objects
+  //vertex and color arrays and whatnot
+  GLfloat* vertexarray;
+  GLfloat* colorarray;
+  GLubyte* elems;
+  //sizes for the binding of the buffer
+  int vertexsize;
+  int colorsize;
+  int elemssize;
+  //for translations
+  glm::vec3 objTran;
+  //for setting the draw buffer to this object
+  void setbuffers() {
+	glGenVertexArrays(1,&vaoID);
+    glBindVertexArray(vaoID);
+	
+    glGenBuffers(2, vboID);
+    glBindBuffer(GL_ARRAY_BUFFER,vboID[0]);
+    glBufferData(GL_ARRAY_BUFFER,vertexsize,vertexarray,GL_STATIC_DRAW);
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,(void*)0);
+	
+    glBindBuffer(GL_ARRAY_BUFFER, vboID[1]);
+    glBufferData(GL_ARRAY_BUFFER,colorsize,colorarray,GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+  
+    glGenBuffers(1,&eboID);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,eboID);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,elemssize,elems,GL_STATIC_DRAW);
+  
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+	
+	//this section handles the translation of the object
+    glm::mat4 trans; //I know this seems wasteful but for some reason this needs to be declared here every time.
+	trans=glm::translate(trans,objTran);//translate the object
+    //printf("pressed: %i\n", pressed);
+    GLint tempLoc = glGetUniformLocation(program,"modelMatrix");//Matrix that handle the transformations
+    glUniformMatrix4fv(tempLoc,1,GL_FALSE,&trans[0][0]);
+  }
+  void draw(){
+	glDrawElements(GL_POLYGON,elemssize,GL_UNSIGNED_BYTE,NULL);
+  }
+} ;
 
-/*GLfloat colorarray[]={
-//3.0f,3.0f,3.0f,3.0f,
+drawobj arrow;
+drawobj newobject;
 
-					0.5f,1.0f,1.0f,1.0f,
-				    1.0f,0.5f,1.0f,1.0f,
-				    1.0f,1.0f,0.5f,1.0f,
-				    1.0f,1.0f,1.0f,1.0f,
-				    0.5f,1.0f,1.0f,1.0f,
-				    1.0f,0.5f,1.0f,1.0f,
-                     1.0f,1.0f,0.5f,1.0f
-};*/
-GLfloat colorarray[]={
-					1.0f,0.0f,0.0f,1.0f,
-					1.0f,0.0f,0.0f,1.0f,
-					1.0f,0.0f,0.0f,1.0f
-};
+//because sizes of arrays aren't passed with the data in c++ -.- but I'd rather have a working function than a pretty function
+void create_object(int vertsize, int colorsize, int elemssize, GLfloat tempvert[], GLfloat tempcolor[], GLubyte tempelems[], drawobj &targetobject){
 
-											
-GLubyte elems[]={0,1,2,3,7,4,5,6,
-    	          7,3,0,4,5,6,2,1,
-    		  0,1,5,4,7,3,2,6};
+	targetobject.vertexarray = (GLfloat*)malloc(sizeof(GLfloat)*vertsize);
+	targetobject.vertexsize = vertsize;
+	memcpy(targetobject.vertexarray, tempvert, 4*vertsize);
+
+	targetobject.colorarray = (GLfloat*)malloc(sizeof(GLfloat)*colorsize);
+	targetobject.colorsize = colorsize;
+	memcpy(targetobject.colorarray, tempcolor, 4*colorsize);
+	
+	targetobject.elems = (GLubyte*)malloc(sizeof(GLfloat)*elemssize);
+	targetobject.elemssize = elemssize;
+	memcpy(targetobject.elems, tempelems, elemssize);
+}
+
+void init_arrow(){
+	GLfloat tempvert[] = {0.0f,0.0f,0.0f,
+						 0.0f,3.0f,0.0f,
+						 3.0f,1.5f,0.0f};
+						 
+	GLfloat tempcolor[]={1.0f,0.0f,0.0f,1.0f,
+					   1.0f,0.0f,0.0f,1.0f,
+					   1.0f,0.0f,0.0f,1.0f};
+					   
+	GLubyte tempelems[]={0,1,2};
+	
+	create_object(sizeof(tempvert), sizeof(tempcolor), sizeof(tempelems), tempvert, tempcolor, tempelems, arrow);
+}
 
 
 void init(){
     glEnable(GL_DEPTH_TEST);
     glViewport(0, 0, 800, 800);
+	program=initShaders(shaders);
 	
-    glGenVertexArrays(1,&vaoID);
-    glBindVertexArray(vaoID);
+	init_arrow();
 	
-    glGenBuffers(2, vboID);
-    glBindBuffer(GL_ARRAY_BUFFER,vboID[0]);
-    glBufferData(GL_ARRAY_BUFFER,sizeof(vertexarray),vertexarray,GL_STATIC_DRAW);
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,(void*)0);
+	GLfloat tempvert[] = {0.0f,0.0f,0.0f,
+						 0.0f,3.0f,0.0f,
+						 3.0f,3.0f,0.0f,
+						 3.0f,0.0f,0.0f};
+						 
+	GLfloat tempcolor[]={0.0f,1.0f,0.0f,1.0f,
+					   0.0f,1.0f,0.0f,1.0f,
+					   0.0f,1.0f,0.0f,1.0f,
+					   0.0f,1.0f,0.0f,1.0f};
+					   
+	GLubyte tempelems[]={0,1,2,3};
 	
-    glBindBuffer(GL_ARRAY_BUFFER, vboID[1]);
-    glBufferData(GL_ARRAY_BUFFER,sizeof(colorarray),colorarray,GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
-  
-    glGenBuffers(1,&eboID);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,eboID);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(elems),elems,GL_STATIC_DRAW);
+	create_object(sizeof(tempvert), sizeof(tempcolor), sizeof(tempelems), tempvert, tempcolor, tempelems, newobject);
 
-    ShaderInfo shaders[]={
-	{ GL_VERTEX_SHADER , "vertexshader.glsl"},
-	{ GL_FRAGMENT_SHADER , "fragmentshader.glsl"}, 
-	{ GL_NONE , NULL} 
-    };
-		
-    program=initShaders(shaders);
-  
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-	
-	//initial reposition
-	cubeTran.x = -22.0; cubeTran.y = -12.0;
+	//initial reposition of arrow
+	arrow.objTran.x = -22.0; arrow.objTran.y = -12.0;
 }
+
 
 
 void display(SDL_Window* screen){
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	
-    glm::mat4 trans;
+	//Dominic changes to display
+	arrow.setbuffers();
+	arrow.draw();
+	newobject.setbuffers();
+	newobject.draw();
+	//end Dom changes
 	
-    trans=glm::translate(trans,cubeTran);//translate the balloon
-    //printf("pressed: %i\n", pressed);
-    GLint tempLoc = glGetUniformLocation(program,"modelMatrix");//Matrix that handle the transformations
-    glUniformMatrix4fv(tempLoc,1,GL_FALSE,&trans[0][0]);
-	
-    glDrawElements(GL_POLYGON,24,GL_UNSIGNED_BYTE,NULL);
     glFlush();
     SDL_GL_SwapWindow(screen);
 }
 
 void input(SDL_Window* screen){
-
+	//printf("%f, %f\n", arrow.objTran.x, arrow.objTran.y);
 	if(pressed){
-		if(cubeTran.y <= -27) cubeTran.y = -27;
-		else if(lastkey.key.keysym.sym == SDLK_DOWN) cubeTran.y -= 0.5;
-		if(cubeTran.y >= 3.5) cubeTran.y = 3.5;
-		else if(lastkey.key.keysym.sym == SDLK_UP) cubeTran.y += 0.5;	
+		if(arrow.objTran.y <= -27) arrow.objTran.y = -27;
+		else if(lastkey.key.keysym.sym == SDLK_DOWN) arrow.objTran.y -= 0.5;
+		if(arrow.objTran.y >= 3.5) arrow.objTran.y = 3.5;
+		else if(lastkey.key.keysym.sym == SDLK_UP) arrow.objTran.y += 0.5;	
 	}
     while ( SDL_PollEvent(&event) )
     {
@@ -138,6 +179,7 @@ int main(int argc, char **argv){
 	
 	//SDL window and context management
     SDL_Window *window;
+	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE); 
 	
     if(SDL_Init(SDL_INIT_VIDEO)<0){//initilizes the SDL video subsystem
 	fprintf(stderr,"Unable to create window: %s\n", SDL_GetError());
