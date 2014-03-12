@@ -44,7 +44,7 @@ public:
 	glGenVertexArrays(1,&vaoID);
     glBindVertexArray(vaoID);
 	
-    glGenBuffers(2, vboID);
+    //glGenBuffers(2, vboID);
     glBindBuffer(GL_ARRAY_BUFFER,vboID[0]);
     glBufferData(GL_ARRAY_BUFFER,vertexsize,vertexarray,GL_STATIC_DRAW);
     glVertexAttribPointer(0,2,GL_FLOAT,GL_FALSE,0,(void*)0);
@@ -53,7 +53,7 @@ public:
     glBufferData(GL_ARRAY_BUFFER,colorsize,colorarray,GL_STATIC_DRAW);
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
   
-    glGenBuffers(1,&eboID);
+    //glGenBuffers(1,&eboID);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,eboID);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,elemssize,elems,GL_STATIC_DRAW);
   
@@ -83,7 +83,7 @@ public:
 class drawarray{
 public:
 	int size;
-	drawobj array[100];
+	drawobj array[500];
 	void init(){size=0;}
 } objectarray;
 
@@ -103,6 +103,10 @@ void create_object(int vertsize, int colorsize, int elemssize, GLfloat tempvert[
 	targetobject.elems = (GLubyte*)malloc(sizeof(GLfloat)*elemssize);
 	targetobject.elemssize = elemssize;
 	memcpy(targetobject.elems, tempelems, elemssize);
+	
+	//initial buffer creation
+	glGenBuffers(2, targetobject.vboID);
+	glGenBuffers(1,&targetobject.eboID);
 }
 
 void init_arrow(){
@@ -185,7 +189,7 @@ void input(SDL_Window* screen){
             case SDL_KEYDOWN:
 				if(event.key.keysym.sym == SDLK_ESCAPE) exit(0);
 				if(event.key.keysym.sym == SDLK_SPACE){
-					if(objectarray.size == 99){ printf("Buffer full"); break;}
+					if(objectarray.size == 500){ printf("Buffer full\n"); break;}
 					printf("%i\n", objectarray.size);
 					GLfloat tempvert[] = {0.0f,0.0f,
 							0.0f,3.0f,
