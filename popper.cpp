@@ -13,6 +13,10 @@ GLfloat pit,yaw,scalar=1;
 
 GLfloat size=20;
 
+time_t timer;
+double score=0;
+double seconds=0;
+
 ShaderInfo shaders[]={
 	{ GL_VERTEX_SHADER , "vertexshader.glsl"},
 	{ GL_FRAGMENT_SHADER , "fragmentshader.glsl"}, 
@@ -184,10 +188,20 @@ void input(SDL_Window* screen){
         switch (event.type)
         {
             case SDL_QUIT:
+				seconds = difftime(time(NULL), timer);
+				printf("time: %.0f\n",seconds);
+				printf("Blocks: %i\n",objectarray.size);
+				printf("score: %.0f\n", seconds + objectarray.size);
 				exit(0);
-                break;
+		                break;
             case SDL_KEYDOWN:
-				if(event.key.keysym.sym == SDLK_ESCAPE) exit(0);
+				if(event.key.keysym.sym == SDLK_ESCAPE){
+					seconds = difftime(time(NULL), timer);
+					printf("time: %.0f\n",seconds);
+					printf("Blocks: %i\n",objectarray.size);
+					printf("score: %.0f\n", seconds + objectarray.size);
+					exit(0);
+				}
 				if(event.key.keysym.sym == SDLK_SPACE){
 					if(objectarray.size == 500){ printf("Buffer full\n"); break;}
 					printf("%i\n", objectarray.size);
@@ -221,7 +235,9 @@ void input(SDL_Window* screen){
 
 
 int main(int argc, char **argv){
-	
+	//timer start
+	timer = time(NULL);
+
 	//For random movement of objects
 	srand(time(NULL));
 	//create object array
@@ -264,7 +280,7 @@ int main(int argc, char **argv){
   }
   
     init();
-	
+
     while(true){
 	input(window);//keyboard controls
 	display(window);//displaying
@@ -273,6 +289,7 @@ int main(int argc, char **argv){
     SDL_GL_DeleteContext(glcontext);
     SDL_DestroyWindow(window);
     SDL_Quit();
- 
+
+
     return 0;
 }
