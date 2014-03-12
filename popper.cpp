@@ -189,17 +189,17 @@ void input(SDL_Window* screen){
         {
             case SDL_QUIT:
 				seconds = difftime(time(NULL), timer);
-				printf("time: %.0f\n",seconds);
-				printf("Blocks: %i\n",objectarray.size);
-				printf("score: %.0f\n", seconds + objectarray.size);
+				/*0printf("time: %.0f\n",seconds);
+				printf("Blocks: %i\n",objectarray.size);*/
+				printf("score: %.0f\n", seconds);
 				exit(0);
 		                break;
             case SDL_KEYDOWN:
 				if(event.key.keysym.sym == SDLK_ESCAPE){
 					seconds = difftime(time(NULL), timer);
-					printf("time: %.0f\n",seconds);
-					printf("Blocks: %i\n",objectarray.size);
-					printf("score: %.0f\n", seconds + objectarray.size);
+					/*printf("time: %.0f\n",seconds);
+					printf("Blocks: %i\n",objectarray.size);*/
+					printf("score: %.0f\n", seconds);
 					exit(0);
 				}
 				if(event.key.keysym.sym == SDLK_SPACE){
