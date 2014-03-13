@@ -150,16 +150,11 @@ void detectcollision(){
 	for(i=0;i<objectarray.size;i++){
 		
 		if((objectarray.array[i].objTran.x-2.5<=arrow.objTran.x)&&((objectarray.array[i].objTran.x+objectarray.array[i].scale>=arrow.objTran.x))){
-		printf("hit front boundary\n");
 			
 			//cin.get();
 			if(((-0.5)*(objectarray.array[i].objTran.x)+((arrow.objTran.y+3.0)-11.5) >= objectarray.array[i].objTran.y) && ((0.5)*(objectarray.array[i].objTran.x)+((arrow.objTran.y)+11.5) <= (objectarray.array[i].objTran.y+objectarray.array[i].scale))){
-			//printf("cube %i -- point on line: %f, top face of cube: %f\n", i, ((0.5)*(objectarray.array[i].objTran.x)+(arrow.objTran.y)+11.5), (objectarray.array[i].objTran.y)+(objectarray.array[i].scale));
-			//printf("cube -- x: %f y: %f\n", objectarray.array[i].objTran.x, objectarray.array[i].objTran.y);
-			//printf("arrow -- x: %f y: %f\n", arrow.objTran.x, arrow.objTran.y);
 			
-				printf("inside tri bitch\n");
-				sleep(5);
+				sleep(3);
 				seconds = difftime(time(NULL), timer);
 				printf("score: %.0f\n", seconds);
 				exit(0);
