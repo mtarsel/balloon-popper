@@ -184,30 +184,6 @@ void input(SDL_Window* screen){
 					printf("score: %.0f\n", seconds);
 					exit(0);
 				}
-				if(event.key.keysym.sym == SDLK_SPACE){
-					if(objectarray.size == 500){ printf("Buffer full\n"); break;}
-					printf("%i\n", objectarray.size);
-					
-					
-					GLfloat scale = randglfloat(0.5, 6.0);
-					GLfloat tempvert[] = {0.0f,0.0f,
-							0.0f,scale,
-							scale,scale,
-							scale,0.0f};
-					
-					int i;
-					GLfloat tempcolor[16];
-					for(i=0;i<4;i++){
-						tempcolor[i]=tempcolor[i+4]=tempcolor[i+8]=tempcolor[i+12]=randglfloat(0.0, 1.0);
-					}
-					   
-					GLubyte tempelems[]={0,1,2,3};
-	
-					create_object(sizeof(tempvert), sizeof(tempcolor), sizeof(tempelems), tempvert, tempcolor, tempelems, objectarray.array[objectarray.size], 1);
-					objectarray.array[objectarray.size].speed = 1.0/scale;
-					printf("%f\n", 1.0/scale);
-					objectarray.size++;
-				}
                 pressed = true;
                 break;
             case SDL_KEYUP:
