@@ -152,7 +152,7 @@ void detectcollision(){
 		if((objectarray.array[i].objTran.x-2.5<=arrow.objTran.x)&&((objectarray.array[i].objTran.x+objectarray.array[i].scale>=arrow.objTran.x))){
 			
 			//cin.get();
-			if(((-0.5)*(objectarray.array[i].objTran.x)+((arrow.objTran.y+3.0)-11.5) >= objectarray.array[i].objTran.y) && ((0.5)*(objectarray.array[i].objTran.x)+((arrow.objTran.y)+11.5) <= (objectarray.array[i].objTran.y+objectarray.array[i].scale))){
+			if(((-0.5)*(objectarray.array[i].objTran.x)+((arrow.objTran.y+3.0)-12.0) >= objectarray.array[i].objTran.y) && ((0.5)*(objectarray.array[i].objTran.x)+((arrow.objTran.y)+12.0) <= (objectarray.array[i].objTran.y+objectarray.array[i].scale))){
 			
 				sleep(3);
 				seconds = difftime(time(NULL), timer);
