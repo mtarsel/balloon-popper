@@ -160,6 +160,9 @@ void detectcollision(){
 			
 				printf("inside tri bitch\n");
 				sleep(5);
+				seconds = difftime(time(NULL), timer);
+				printf("score: %.0f\n", seconds);
+				exit(0);
 			}
 		}
 	}
