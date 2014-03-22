@@ -8,3 +8,14 @@ You control the red triangle and your objective is to avoid the squares flying a
 Use the UP and DOWN arrow keys to avoid the squares.
 
 Your score and the number of squares will increase every minute
+
+
+| File        | Description           |
+| ------------------------ |:-------------:|
+| shaders.h                | shader's file      |
+| drawobj.h                | draws red arrow and has class for squares      |
+| flyer.cpp                | main implementation     |
+| fragmentshader.glsl                | fragment shader file      |
+| globals.h                | Conatains all global variable definitions      |
+| Makefile                | compiles all the files      |
+| vertexshader.glsl                | Vertex shader's file      |

@@ -1,9 +1,8 @@
 #include "shaders.h"
-#include "drawarrow.h"
+#include "drawobj.h"
+#include "globals.h"
 
-//GLuint program;
-
-GLfloat pit,yaw,scalar=1;
+/*GLfloat pit,yaw,scalar=1;
 
 GLfloat size=20;
 
@@ -20,7 +19,7 @@ ShaderInfo shaders[]={
 //Variables for input function
 bool pressed = false;
 SDL_Event event;
-SDL_Event lastkey;
+SDL_Event lastkey;*/
 
 class drawarray{
 public:
@@ -170,7 +169,6 @@ int main(int argc, char **argv){
 	fprintf(stderr,"Unable to create window: %s\n",SDL_GetError());
     }
 	
-
 	//creates opengl context associated with the window
 	SDL_GLContext glcontext=SDL_GL_CreateContext(window);
 	
@@ -206,7 +204,6 @@ int main(int argc, char **argv){
     SDL_GL_DeleteContext(glcontext);
     SDL_DestroyWindow(window);
     SDL_Quit();
-
 
     return 0;
 }
