@@ -22,4 +22,4 @@ Your score and the number of squares will increase every minute
 
 
 
-![alt tag](https://raw.github.com/mtarsel/flying-triangle/demo.png)
+![alt tag](https://raw.github.com/mtarsel/master/flying-triangle/demo.png)
