@@ -107,5 +107,4 @@ void init_arrow(){
 	arrow.objTran.x = -22.0; arrow.objTran.y = -12.0;
 }
 
-
 #endif
