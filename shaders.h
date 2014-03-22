@@ -3,13 +3,15 @@
 //functions for loading in shaders
 #include <SDL2/SDL.h>
 #include <GL/glew.h>
-//#include "GL/freeglut.h"
+
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-//#include <glm/gtc/type_ptr.hpp>
 
+#include <unistd.h>
+#include <cstdlib>
+#include <ctime>
 #include <vector>
 #include <cstdio>
 #include <iostream>

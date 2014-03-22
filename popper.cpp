@@ -1,11 +1,7 @@
 #include "shaders.h"
-#include <unistd.h>
-#include <cstdlib>
-#include <ctime>
-using namespace std;
+#include "drawarrow.h"
 
-
-GLuint program;
+//GLuint program;
 
 GLfloat pit,yaw,scalar=1;
 
@@ -26,11 +22,18 @@ bool pressed = false;
 SDL_Event event;
 SDL_Event lastkey;
 
-GLfloat randglfloat(float min, float max){
+/*GLfloat randglfloat(float min, float max){
 	return min+static_cast <GLfloat> (rand())/(static_cast <GLfloat> (RAND_MAX/(max-min)));
-}
+}*/
 
-class drawobj {
+class drawarray{
+public:
+	int size;
+	drawobj array[500];
+	void init(){size=0;}
+} objectarray;
+
+/*class drawobj {
 public:
   GLuint vaoID,vboID[2],eboID;//buffer objects
   //vertex and color arrays and whatnot
@@ -88,14 +91,24 @@ public:
   }
 } ;
 
-class drawarray{
-public:
-	int size;
-	drawobj array[500];
-	void init(){size=0;}
-} objectarray;
-
 drawobj arrow;
+
+void init_arrow(){
+	GLfloat tempvert[] = {0.0f,0.0f,
+						 0.0f,3.0f,
+						 3.0f,1.5f};
+						 
+	GLfloat tempcolor[]={1.0f,0.0f,0.0f,1.0f,
+					   1.0f,0.0f,0.0f,1.0f,
+					   1.0f,0.0f,0.0f,1.0f};
+					   
+	GLubyte tempelems[]={0,1,2};
+	
+	create_object(sizeof(tempvert), sizeof(tempcolor), sizeof(tempelems), tempvert, tempcolor, tempelems, arrow, 0);
+	//initial reposition of arrow, overriding the default create_object position.
+	arrow.objTran.x = -22.0; arrow.objTran.y = -12.0;
+}
+
 
 //because sizes of arrays aren't passed with the data in c++ -.- but I'd rather have a working function than a pretty function
 void create_object(int vertsize, int colorsize, int elemssize, GLfloat tempvert[], GLfloat tempcolor[], GLubyte tempelems[], drawobj &targetobject, int move){
@@ -118,23 +131,7 @@ void create_object(int vertsize, int colorsize, int elemssize, GLfloat tempvert[
 	//initial buffer creation
 	glGenBuffers(2, targetobject.vboID);
 	glGenBuffers(1,&targetobject.eboID);
-}
-
-void init_arrow(){
-	GLfloat tempvert[] = {0.0f,0.0f,
-						 0.0f,3.0f,
-						 3.0f,1.5f};
-						 
-	GLfloat tempcolor[]={1.0f,0.0f,0.0f,1.0f,
-					   1.0f,0.0f,0.0f,1.0f,
-					   1.0f,0.0f,0.0f,1.0f};
-					   
-	GLubyte tempelems[]={0,1,2};
-	
-	create_object(sizeof(tempvert), sizeof(tempcolor), sizeof(tempelems), tempvert, tempcolor, tempelems, arrow, 0);
-	//initial reposition of arrow, overriding the default create_object position.
-	arrow.objTran.x = -22.0; arrow.objTran.y = -12.0;
-}
+}*/
 
 
 void init(){
@@ -162,6 +159,33 @@ void detectcollision(){
 		}
 	}
 }
+
+
+void newshape(){
+	if(objectarray.size == 500)
+		printf("Buffer full\n");
+	printf("%i\n", objectarray.size);
+	GLfloat scale = randglfloat(0.5, 6.0);
+	GLfloat tempvert[] = {0.0f,0.0f,
+				    0.0f,scale,
+				    scale,scale,
+				    scale,0.0f};
+					
+	int i;
+	GLfloat tempcolor[16];
+	for(i=0;i<4;i++){
+		tempcolor[i]=tempcolor[i+4]=tempcolor[i+8]=tempcolor[i+12]=randglfloat(0.0, 1.0);
+	}
+					   
+	GLubyte tempelems[]={0,1,2,3};
+	
+	create_object(sizeof(tempvert), sizeof(tempcolor), sizeof(tempelems), tempvert, tempcolor, tempelems, objectarray.array[objectarray.size], 1);
+	objectarray.array[objectarray.size].speed = 1.0/scale;
+	objectarray.array[objectarray.size].scale = scale;
+	printf("%f\n", 1.0/scale);
+	objectarray.size++;
+}
+
 
 void display(SDL_Window* screen){
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
@@ -214,31 +238,6 @@ void input(SDL_Window* screen){
     }
 	lastkey = event;
     }
-
-void newshape(){
-	if(objectarray.size == 500)
-		printf("Buffer full\n");
-	printf("%i\n", objectarray.size);
-	GLfloat scale = randglfloat(0.5, 6.0);
-	GLfloat tempvert[] = {0.0f,0.0f,
-				    0.0f,scale,
-				    scale,scale,
-				    scale,0.0f};
-					
-	int i;
-	GLfloat tempcolor[16];
-	for(i=0;i<4;i++){
-		tempcolor[i]=tempcolor[i+4]=tempcolor[i+8]=tempcolor[i+12]=randglfloat(0.0, 1.0);
-	}
-					   
-	GLubyte tempelems[]={0,1,2,3};
-	
-	create_object(sizeof(tempvert), sizeof(tempcolor), sizeof(tempelems), tempvert, tempcolor, tempelems, objectarray.array[objectarray.size], 1);
-	objectarray.array[objectarray.size].speed = 1.0/scale;
-	objectarray.array[objectarray.size].scale = scale;
-	printf("%f\n", 1.0/scale);
-	objectarray.size++;
-}
 
 
 int main(int argc, char **argv){
