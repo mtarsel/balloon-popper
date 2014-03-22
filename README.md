@@ -19,3 +19,7 @@ Your score and the number of squares will increase every minute
 | globals.h                | Conatains all global variable definitions      |
 | Makefile                | compiles all the files      |
 | vertexshader.glsl                | Vertex shader's file      |
+
+
+
+![alt tag](https://raw.github.com/mtarsel/flying-triangle/demo.png)
