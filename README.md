@@ -1,12 +1,10 @@
-balloon-popper
+Flying Triangle
 ==============
 
-Move the balloon up and down to avoid the arrows. Implementation in C++ using
-OpenGL.
+Move the triangle up and down to avoid the flying squaes. Implementation in C++ using OpenGL.
 
-You are the Red Circle and your objective is to avoid the triangles, or arrows,
-flying at you.
+You control the red triangle and your objective is to avoid the squares flying at you.
 
-Use the UP and DOWN arrow keys to avoid the arrows.
+Use the UP and DOWN arrow keys to avoid the squares.
 
-Your score and the number of arrows will increase every minute
+Your score and the number of squares will increase every minute

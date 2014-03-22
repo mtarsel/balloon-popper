@@ -261,7 +261,7 @@ int main(int argc, char **argv){
 
 	//create window
     window = SDL_CreateWindow(
-	"Balloon Popper", //Window title
+	"Space Flyer", //Window title
 	SDL_WINDOWPOS_UNDEFINED, //initial x position
 	SDL_WINDOWPOS_UNDEFINED, //initial y position
 	800,							//width, in pixels
